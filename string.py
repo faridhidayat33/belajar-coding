@@ -1,10 +1,10 @@
 #count,find,format,isdigit,join,replace,rsplit
 nama_lengkap="ahmad farid hidayat"
-print("count",nama_lengkap.count('a'))
-print("find",nama_lengkap.find('id'))
-print("format",nama_lengkap.format())
+print(nama_lengkap.count('a'))
+print(nama_lengkap.find('id'))
+print("Nama Lengkap saya adalah {}".format(nama_lengkap))
 print("isdigit",nama_lengkap.isdigit())
-print("join",nama_lengkap.join())
-print("replace",nama_lengkap.replace())
-print("rsplit",nama_lengkap.rsplit())
+print("-".join(nama_lengkap))
+print(nama_lengkap.replace("ahmad", "Tuan"))
+print(nama_lengkap.rsplit("a"))
 
