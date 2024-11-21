@@ -1,0 +1,268 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.16.4
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+```
+
+```{python}
+data = pd.read_csv('data_sources/data-science/munnar.csv')
+```
+
+```{python}
+data.head()
+```
+
+```{python}
+data.tail()
+```
+
+```{python}
+data.info()
+```
+
+```{python}
+data.columns=['hotel','rating','description','reviews','stars','location','landmark','dtl','price','tax']
+```
+
+```{python}
+data['price']=data['price'].apply(lambda x: ''.join(x.split(','))).astype('int64')
+```
+
+```{python}
+data.info()
+```
+
+```{python}
+floatstr = '54.45 km'
+```
+
+```{python}
+floatstr.split(' ')
+```
+
+```{python}
+data
+```
+
+```{python}
+data['dtl']=data['dtl'].apply(lambda x:float(x.split(' ')[0]))
+```
+
+```{python}
+data.info()
+```
+
+```{python}
+tax = data['tax']
+```
+
+```{python}
+tax = tax.dropna()
+```
+
+```{python}
+tax = tax.apply(lambda x: ''.join(x.split(','))).astype('int64')
+```
+
+```{python}
+taxmean = tax.mean()
+```
+
+```{python}
+taxmean = round (taxmean)
+```
+
+```{python}
+taxmean
+```
+
+```{python}
+stars = data['stars']
+```
+
+```{python}
+starsmean = stars.mean()
+```
+
+```{python}
+starsmean = round (starsmean)
+```
+
+```{python}
+starsmean
+```
+
+```{python}
+data['stars'].fillna(float (starsmean),inplace=True)
+```
+
+```{python}
+data['stars'].unique()
+```
+
+```{python}
+data['tax'].fillna(str (taxmean),inplace=True)
+```
+
+```{python}
+data['tax'].unique()
+```
+
+```{python}
+data['tax']=data['tax'].apply(lambda x:''.join(x.split(','))).astype('int64')
+```
+
+```{python}
+data.info()
+```
+
+```{python}
+data[data['description']=='Average']
+```
+
+```{python}
+data[data['description']=='Good']
+```
+
+```{python}
+data['description'].unique()
+```
+
+```{python}
+def convertToInt(row):
+    if row == 'Average' :
+        row = 1
+    elif row == 'Good' :
+        row = 2
+    elif row == 'Very Good' :
+        row = 3
+    elif row == 'Excellent' :
+        row = 4
+    return row
+```
+
+```{python}
+data['description'] = data['description'].apply(lambda x: convertToInt(x))
+```
+
+```{python}
+data
+```
+
+```{python}
+data.info()
+```
+
+```{python}
+data.corr(numeric_only=True)
+```
+
+```{python}
+plt.figure(figsize=(20,7))
+sns.boxplot(x='rating',y='price',data = data)
+plt.xticks(rotation = 45 )
+plt.show()
+```
+
+```{python}
+catohe = data [['location','landmark','hotel']]
+```
+
+```{python}
+catohe = pd.get_dummies(catohe, dtype="int")
+```
+
+```{python}
+datanum = data.drop(['location','landmark','hotel'],axis=1)
+```
+
+```{python}
+datanum
+```
+
+```{python}
+datanum = pd.concat([datanum,catohe],axis=1)
+```
+
+```{python}
+datanum
+```
+
+```{python}
+for column in datanum.columns :
+    datanum[column] = datanum[column] / datanum[column].abs().max()
+```
+
+```{python}
+datanum
+```
+
+```{python}
+y = datanum['price']
+y 
+```
+
+```{python}
+x = datanum.loc[:, datanum.columns != 'price']
+x
+```
+
+```{python}
+from sklearn.model_selection import train_test_split
+```
+
+```{python}
+xtrain,xval, ytrain, yval = train_test_split(x,y, test_size = 0.2, random_state = 1)
+```
+
+```{python}
+xtrain.head(5)
+```
+
+```{python}
+ytrain.head(5)
+```
+
+```{python}
+import sklearn
+```
+
+```{python}
+from sklearn import linear_model
+```
+
+```{python}
+logr = linear_model.LinearRegression()
+```
+
+```{python}
+logr.fit(xtrain, ytrain)
+```
+
+```{python}
+logr.score(xval,yval)
+```
+
+```{python}
+x.iloc[0].info()
+```
+
+```{python}
+logr.predict(x.iloc[0])
+```
+

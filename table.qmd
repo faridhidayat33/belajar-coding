@@ -1,0 +1,24 @@
+---
+title: Rumah Coding Farid
+description: Rumah Coding adalah kumpulan hasil belajar visualisasi data menggunakan bahasa pemrograman phyton.
+date: 10/28/2024
+author: Ahmad Farid Hidayat
+categories: [coding, phyton, rumah]
+draft: false
+show: true
+freeze: true
+---
+
+
++----+---------------------+
+| No | Nama File           |
++====+=====================+
+| 1  | titanic.qmd         |
++----+---------------------+
+| 2  | bermain_tenis.qmd   |
++----+---------------------+
+| 3  | prakiraan_cuaca.qmd |
++----+---------------------+
+
+: {.striped .hover}
+

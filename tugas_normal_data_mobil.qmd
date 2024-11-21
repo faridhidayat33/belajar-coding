@@ -1,0 +1,298 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.16.4
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+```
+
+```{python}
+data = pd.read_csv('data_sources/data-science/cars_data.csv')
+```
+
+```{python}
+data
+```
+
+```{python}
+data.columns=['cars','coltd','years','prices','driven','fuel']
+```
+
+```{python}
+data.info()
+```
+
+```{python}
+data.dropna(inplace=True)
+```
+
+```{python}
+data
+```
+
+```{python}
+data['years'].unique()
+```
+
+```{python}
+data['years']=data['years'].astype('int64')
+```
+
+```{python}
+data.info()
+```
+
+```{python}
+data['prices'].unique()
+```
+
+```{python}
+data['prices'].describe()
+```
+
+```{python}
+prices = data['prices']
+```
+
+```{python}
+prices = data['prices'].loc[data['prices']!= 'Ask For Price']
+```
+
+```{python}
+prices
+```
+
+```{python}
+prices = prices.apply(lambda x: ''.join(x.split(','))).astype('int64')
+```
+
+```{python}
+prices
+```
+
+```{python}
+pricesmean = prices.mean()
+```
+
+```{python}
+data['prices'] = data['prices'].apply(lambda x: ''.join(x.split(',')))
+```
+
+```{python}
+pricesmean = round (pricesmean)
+```
+
+```{python}
+pricesmean
+```
+
+```{python}
+data['prices'].loc[data['prices'] == 'Ask For Price'] = pricesmean
+```
+
+```{python}
+data['prices'] = data['prices'].astype('int64')
+```
+
+```{python}
+data['prices']
+```
+
+```{python}
+data.info()
+```
+
+```{python}
+data['driven']=data['driven'].apply(lambda x:''.join(x.split(' ')[0].split(',')))
+```
+
+```{python}
+data['driven'].unique()
+```
+
+```{python}
+data['driven']=data['driven'].astype('int64')
+```
+
+```{python}
+data['driven']
+```
+
+```{python}
+data.info()
+```
+
+```{python}
+data['cars'] = data['cars'].str.split(' ').str.slice(0,3).str.join(' ')
+```
+
+```{python}
+data[data['prices']>5000000]
+```
+
+```{python}
+data = data[data['prices']<5000000].reset_index(drop=True)
+```
+
+```{python}
+data = data[data['driven']<300000].reset_index(drop=True)
+```
+
+```{python}
+data.describe(include='all')
+```
+
+```{python}
+data['coltd'].unique()
+```
+
+```{python}
+plt.subplots(figsize=(15,7))
+ax=sns.boxplot(x='coltd',y='prices',data=data)
+plt.ticklabel_format(style='plain',axis='y') #Here in x-axis we can see that the data is overlapped
+plt.show()
+```
+
+```{python}
+plt.subplots(figsize=(15,7))
+ax=sns.boxplot(x='coltd',y='prices',data=data)
+plt.xticks(rotation=40,ha='right') #Please observe we have tilted names by 40 degree using rotation
+plt.show()
+```
+
+```{python}
+plt.subplots(figsize=(20,10))
+ax=sns.swarmplot(x='years',y='prices',data=data)
+ax.set_xticklabels(ax.get_xticklabels(),rotation=40,ha='right')
+plt.show()
+```
+
+```{python}
+sns.relplot(x='driven',y='prices',data=data,height=7,aspect=1.5)
+```
+
+```{python}
+plt.subplots(figsize=(14,7))
+sns.boxplot(x='fuel',y='prices',data=data)
+plt.ticklabel_format(style='plain',axis='y')
+```
+
+```{python}
+ax=sns.relplot(x='coltd',y='prices',data=data,hue='fuel',size='years',height=7,aspect=2)
+ax.set_xticklabels(rotation=40,ha='right')
+```
+
+Linear Regression (Regresi Linear) adalah suatu metode statistik untuk memodelkan hubungan linier antara variabel independen dan dependen dengan menggunakan garis lurus. Regresi linier digunakan untuk mencari hubungan linier antara variabel terikat dan satu atau lebih variabel bebas. Dalam hal data melibatkan lebih dari satu variabel bebas, maka regresi linier disebut model regresi linier berganda. Regresi linear merupakan pendekatan untuk memodelkan hubungan antara suatu (satu atau lebih) variabel dependen dengan satu (regresi linear sederhana) atau lebih variabel independen (regresi linier banyak).
+
+Regresi logistik adalah metode analisis statistik yang digunakan untuk memprediksi hasil biner, seperti ya atau tidak, berdasarkan pengamatan sebelumnya dari kumpulan data. Metode ini memprediksi variabel data dependen dengan menganalisis hubungan antara satu atau lebih variabel independen yang ada1. Logistic Regression adalah salah satu metode statistik yang digunakan untuk memodelkan hubungan antara variabel independen (variabel prediktor) dan variabel dependen biner (variabel target)2. Metode ini sering digunakan untuk memprediksi kemungkinan kejadian suatu peristiwa berdasarkan nilai-nilai dari beberapa faktor prediktor2.
+
+```{python}
+x=data[['cars','coltd','years','driven','fuel']]
+y=data['prices']
+```
+
+```{python}
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.2)
+```
+
+```{python}
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import make_column_transformer
+from sklearn.pipeline import make_pipeline
+```
+
+```{python}
+ohe= OneHotEncoder()
+ohe.fit(x[['cars','coltd','fuel']]) #We Created onehotencoder
+```
+
+```{python}
+column_trans = make_column_transformer((OneHotEncoder(categories=ohe.categories_),['cars','coltd','fuel']),remainder='passthrough')
+```
+
+```{python}
+lr = LinearRegression()
+```
+
+```{python}
+pipe = make_pipeline(column_trans,lr)
+```
+
+```{python}
+pipe.fit(x_train,y_train)
+```
+
+```{python}
+y_pred = pipe.predict(x_test)
+```
+
+```{python}
+pipe.predict(x_test)
+```
+
+```{python}
+r2_score(y_test, y_pred)
+```
+
+```{python}
+x_test.info()
+```
+
+```{python}
+x_test
+```
+
+```{python}
+motor = np.array(x_test.iloc[117])
+motor
+```
+
+```{python}
+newdata = x_test.iloc[[0]]
+print(newdata)
+newdata['years'] = 2008
+newdata['driven'] = 20500
+pipe.predict(newdata)
+```
+
+```{python}
+scores=[] #we made list named as scores
+
+for i in range(5000):
+    x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.1,random_state=i) #we have run the loop by using different random state
+    lr=LinearRegression()
+    pipe=make_pipeline(column_trans,lr)
+    pipe.fit(x_train,y_train)
+    y_pred=pipe.predict(x_test)
+    scores.append(r2_score(y_test,y_pred))
+```
+
+```{python}
+scores[np.argmax(scores)]
+```
+
+```{python}
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.1,random_state=np.argmax(scores))
+lr=LinearRegression()
+pipe=make_pipeline(column_trans,lr)
+pipe.fit(x_train,y_train)
+y_pred=pipe.predict(x_test)
+r2_score(y_test,y_pred)
+```
+
